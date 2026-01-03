@@ -1,8 +1,5 @@
 locals {
   variables = jsondecode(read_tfvars_file("${get_parent_terragrunt_dir()}/variables.auto.tfvars"))
-  hub_account_id   = local.variables.hub_account_id
-  spoke_account_id = local.variables.spoke_account_id
-  region           = local.variables.region
 }
 
 generate "backend" {
@@ -22,7 +19,5 @@ EOF
 
 inputs = {
   service = local.variables.service,
-  region  = local.variables.region,
-  ado     = local.variables.ado
-  host    = local.variables.host
+  region  = local.variables.region
 }

@@ -1,6 +1,5 @@
 include "root" {
   path = find_in_parent_folders("root.hcl")
-  expose = true
 }
 
 generate "provider" {
@@ -8,7 +7,7 @@ generate "provider" {
   if_exists = "overwrite"
   contents  = <<EOF
 provider "aws" {
-  region = "${include.root.locals.region}"
+  region = var.region
 }
 EOF
 }

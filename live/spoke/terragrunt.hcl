@@ -8,10 +8,19 @@ generate "provider" {
   if_exists = "overwrite"
   contents  = <<EOF
 provider "aws" {
-  region = "${include.root.locals.region}"
+  region = var.region
 
   assume_role {
-    role_arn = "arn:aws:iam::${include.root.locals.spoke_account_id}:role/OrganizationAccountAccessRole"
+    role_arn = format("arn:aws:iam::%v:role/OrganizationAccountAccessRole", var.spoke_account_id)
+  }
+}
+
+provider "docker" {
+  host = var.host
+  registry_auth {
+    address  = format("%v.dkr.ecr.%v.amazonaws.com", data.aws_caller_identity.this.account_id, var.region)
+    username = data.aws_ecr_authorization_token.token.user_name
+    password = data.aws_ecr_authorization_token.token.password
   }
 }
 EOF
@@ -33,7 +42,11 @@ terraform {
 }
 
 inputs = {
-  private_subnets = dependency.hub.outputs.ram_shared_resources.subnets
-  security_group = [dependency.hub.outputs.ram_shared_resources.security_group]
+  private_subnets       = dependency.hub.outputs.ram_shared_resources.subnets
+  security_group        = [dependency.hub.outputs.ram_shared_resources.security_group]
   create_security_group = dependency.hub.outputs.ram_shared_resources.security_group == "sg-00000000000000000" ? false : true
+  spoke_account_id      = include.root.locals.variables.spoke_account_id
+  ado                   = include.root.locals.variables.ado
+  host                  = include.root.locals.variables.host
+  build_context         = "${get_repo_root()}/workloads/ado-agent"
 }

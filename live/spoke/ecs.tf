@@ -23,7 +23,7 @@ module "ecs_service" {
       cpu       = 512
       memory    = 1024
       essential = true
-      image     = "${module.ecr.repository_url}:latest"
+      image     = docker_registry_image.ado.name
       host_path = "/var/run/docker.sock"
       mount_points = [
         {
