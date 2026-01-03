@@ -38,7 +38,7 @@ module "autoscaling" {
   image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
   instance_type = each.value.instance_type
 
-  security_groups                 = [split("/", var.security_group)[1]]
+  security_groups                 = var.security_group
   user_data                       = base64encode(each.value.user_data)
   ignore_desired_capacity_changes = true
 
@@ -51,7 +51,7 @@ module "autoscaling" {
     AdoCustomRole                       = module.ado_custom_policy.arn
   }
 
-  vpc_zone_identifier = local.private_subnet_ids
+  vpc_zone_identifier = var.private_subnets
 
   health_check_type = "EC2"
   min_size          = 1

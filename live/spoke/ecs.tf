@@ -16,6 +16,8 @@ module "ecs_service" {
   memory      = 1024
   launch_type = "EC2"
 
+  create_security_group = var.create_security_group
+
   container_definitions = {
     ado = {
       cpu       = 512
@@ -70,7 +72,7 @@ module "ecs_service" {
     }
   }
 
-  subnet_ids = local.private_subnet_ids
+  subnet_ids = var.private_subnets
   security_group_egress_rules = {
     all = {
       from_port   = "-1"

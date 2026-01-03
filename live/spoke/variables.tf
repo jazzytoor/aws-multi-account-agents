@@ -15,5 +15,11 @@ variable "private_subnets" {
 }
 
 variable "security_group" {
-  type = string
+  type = list(string)
+}
+
+variable "create_security_group" {
+  type     = bool
+  default  = true
+  nullable = false
 }

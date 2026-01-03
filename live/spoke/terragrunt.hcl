@@ -19,10 +19,11 @@ EOF
 
 dependency "hub" {
   config_path = "../hub"
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
   mock_outputs = {
     ram_shared_resources = {
-      security_group = ""
-      subnets = [""]
+      subnets        = ["subnet-00000000000000000"]
+      security_group = "sg-00000000000000000"
     }
   }
 }
@@ -33,5 +34,6 @@ terraform {
 
 inputs = {
   private_subnets = dependency.hub.outputs.ram_shared_resources.subnets
-  security_group = dependency.hub.outputs.ram_shared_resources.security_group
+  security_group = [dependency.hub.outputs.ram_shared_resources.security_group]
+  create_security_group = dependency.hub.outputs.ram_shared_resources.security_group == "sg-00000000000000000" ? false : true
 }
