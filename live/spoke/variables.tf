@@ -23,3 +23,7 @@ variable "create_security_group" {
   default  = true
   nullable = false
 }
+
+variable "host" {
+  type = string
+}
