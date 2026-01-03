@@ -19,3 +19,9 @@ terraform {
 }
 EOF
 }
+
+inputs = {
+  service = local.variables.service,
+  region = local.variables.region,
+  ado = local.variables.ado
+}
