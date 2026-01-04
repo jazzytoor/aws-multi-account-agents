@@ -84,6 +84,6 @@ jobs:
           no-telemetry: true
           root: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
 
-      # - name: Terragrunt Init
-      #   run: terragrunt run --all init
-      #   working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
+      - name: Terragrunt Init
+        run: terragrunt run --all init
+        working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
