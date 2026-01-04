@@ -52,9 +52,9 @@ jobs:
 
       - name: Install Terragrunt
         run: |
-          curl -Lo terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.96.1/terragrunt_linux_amd64
-          chmod +x terragrunt
-          sudo mv terragrunt /usr/local/bin/
+          curl -Lo terragrunt-bin https://github.com/gruntwork-io/terragrunt/releases/download/v0.96.1/terragrunt_linux_amd64
+          chmod +x terragrunt-bin
+          sudo mv terragrunt-bin /usr/local/bin/terragrunt
 
       - name: Terragrunt Init
         run: terragrunt run --all init
