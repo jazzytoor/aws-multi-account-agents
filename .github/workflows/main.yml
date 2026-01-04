@@ -105,15 +105,15 @@ jobs:
           root: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
 
       - name: Terragrunt Run
-        if: >
-          ${{
-            github.event.inputs.operation == 'deploy' ||
-            github.event.inputs.operation == ''
-          }}
+        if: |
+          github.event_name != 'workflow_dispatch' ||
+          github.event.inputs.operation == 'deploy'
         run: terragrunt run --all apply --non-interactive
         working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
 
       - name: Terragrunt Destroy
-        if: ${{ github.event.inputs.operation == 'destroy' }}
+        if: |
+          github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.operation == 'destroy'
         run: terragrunt run --all destroy --non-interactive
         working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
