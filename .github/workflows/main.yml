@@ -1,12 +1,19 @@
 on:
-  # pull_request:
-  #   branches:
-  #     - main
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
-      - feat/actions
   workflow_dispatch:
+    inputs:
+      operation:
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - destroy
 
 jobs:
   build:
@@ -97,18 +104,12 @@ jobs:
           no-telemetry: true
           root: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
 
-      # - name: Terragrunt Init
-      #   run: terragrunt run --all init
-      #   working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
-
-      # - name: Terragrunt Plan
-      #   run: terragrunt run --all plan
-      #   working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
-
-      # - name: Terragrunt Apply
-      #   run: terragrunt run --all apply --non-interactive
-      #   working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
+      - name: Terragrunt Run
+        if: ${{ github.event.inputs.operation == 'deploy' }}
+        run: terragrunt run --all apply --non-interactive
+        working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
 
       - name: Terragrunt Destroy
+        if: ${{ github.event.inputs.operation == 'destroy' }}
         run: terragrunt run --all destroy --non-interactive
         working-directory: ${{ env.TERRAGRUNT_WORKING_DIRECTORY }}
