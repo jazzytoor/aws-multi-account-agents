@@ -75,7 +75,8 @@ jobs:
             [
               ${{ toJSON(vars) }},
               ${{ toJSON(secrets) }},
-              { "SERVICE": "aws-multi-account-agents" }
+              { "SERVICE": "aws-multi-account-agents" },
+              { "BACKEND": "$BACKEND" },
             ]
           token-pattern: custom
           token-prefix: '${'
