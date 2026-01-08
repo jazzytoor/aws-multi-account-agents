@@ -1,5 +1,6 @@
 module "ado_custom_policy" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  version = "~> 6.0"
 
   name = "ado"
 

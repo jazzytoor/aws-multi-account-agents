@@ -14,16 +14,14 @@ variable "spoke_account_id" {
   type = string
 }
 
-variable "private_subnets" {
+variable "subnets" {
   type = list(string)
 }
 
-variable "security_group" {
-  type = list(string)
+variable "stack" {
+  type = string
 }
 
-variable "create_security_group" {
-  type     = bool
-  default  = true
-  nullable = false
+variable "vpc_id" {
+  type = string
 }
