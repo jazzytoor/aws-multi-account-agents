@@ -20,4 +20,5 @@ EOF
 inputs = {
   service = local.variables.service,
   region  = local.variables.region
+  stack   = local.variables.stack
 }

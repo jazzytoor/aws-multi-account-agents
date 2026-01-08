@@ -22,6 +22,14 @@ provider "docker" {
     password = data.aws_ecr_authorization_token.token.password
   }
 }
+
+%{ if include.root.locals.variables.stack == "eks" }
+provider "kubernetes" {
+  host                   = module.eks[0].cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks[0].cluster_certificate_authority_data)
+  token                  = data.aws_eks_cluster_auth.eks[0].token
+}
+%{ endif }
 EOF
 }
 
@@ -29,10 +37,8 @@ dependency "hub" {
   config_path = "../hub"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
   mock_outputs = {
-    ram_shared_resources = {
-      subnets        = ["subnet-00000000000000000"]
-      security_group = "sg-00000000000000000"
-    }
+    subnets = ["subnet-00000000000000000"]
+    vpc_id  = "vpc-00000000000000000"
   }
 }
 
@@ -41,9 +47,9 @@ terraform {
 }
 
 inputs = {
-  private_subnets       = dependency.hub.outputs.ram_shared_resources.subnets
-  security_group        = [dependency.hub.outputs.ram_shared_resources.security_group]
-  create_security_group = dependency.hub.outputs.ram_shared_resources.security_group == "sg-00000000000000000" ? false : true
-  spoke_account_id      = include.root.locals.variables.spoke_account_id
-  ado                   = include.root.locals.variables.ado
+  subnets          = dependency.hub.outputs.subnets
+  spoke_account_id = include.root.locals.variables.spoke_account_id
+  ado              = include.root.locals.variables.ado
+  vpc_id           = dependency.hub.outputs.vpc_id
+  stack            = "ecs"
 }

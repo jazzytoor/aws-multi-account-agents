@@ -1,8 +1,8 @@
 resource "docker_image" "ado" {
   name = "${module.ecr.repository_url}:latest"
   build {
-    context    = "workloads/ado-agent"
-    dockerfile = "workloads/ado-agent/Dockerfile"
+    context    = "${path.module}/workloads/ado-agent/docker"
+    dockerfile = "${path.module}/workloads/ado-agent/docker/Dockerfile"
   }
   platform = "linux/arm64"
 }
