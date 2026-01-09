@@ -65,21 +65,54 @@ module "eks" {
   tags = local.default_tags
 }
 
-resource "kubernetes_manifest" "ado" {
-  for_each = var.stack == "eks" ? {
-    for f in [
-      "workloads/ado-agent/k8s/00-deployment.yaml.tpl",
-      "workloads/ado-agent/k8s/01-scaledjob.yaml.tpl",
-    ] :
-    f => yamldecode(templatefile("${path.module}/${f}", {
-      azp_url   = var.ado["AZP_URL"]
-      azp_pool  = var.ado["AZP_POOL"]
-      azp_token = var.ado["AZP_TOKEN"]
-      image     = docker_registry_image.ado.name
-    }))
-  } : {}
+resource "helm_release" "keda" {
+  count = var.stack == "eks" ? 1 : 0
 
-  manifest = each.value
+  name       = "keda"
+  repository = "https://kedacore.github.io/charts"
+  chart      = "keda"
+  namespace  = "keda"
+
+  create_namespace = true
 
   depends_on = [module.eks]
+}
+
+resource "helm_release" "ado" {
+  count = var.stack == "eks" ? 1 : 0
+
+  name      = "ado"
+  chart     = "${path.module}/workloads/ado-agent/chart"
+  namespace = "ado"
+
+  create_namespace = true
+
+  set = [
+    {
+      name  = "image.repository"
+      value = split(":", docker_registry_image.ado.name)[0]
+    },
+    {
+      name  = "image.tag"
+      value = split(":", docker_registry_image.ado.name)[1]
+    },
+    {
+      name  = "global.pool"
+      value = var.ado["AZP_POOL"]
+    },
+    {
+      name  = "global.url"
+      value = var.ado["AZP_URL"]
+    },
+    {
+      name  = "global.token"
+      value = var.ado["AZP_TOKEN"]
+    },
+    {
+      name  = "global.stack"
+      value = var.ado["AZP_STACK"]
+    }
+  ]
+
+  depends_on = [module.eks, helm_release.keda]
 }

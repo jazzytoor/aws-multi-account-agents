@@ -24,10 +24,12 @@ provider "docker" {
 }
 
 %{ if include.root.locals.variables.stack == "eks" }
-provider "kubernetes" {
-  host                   = module.eks[0].cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks[0].cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.eks[0].token
+provider "helm" {
+  kubernetes = {
+    host                   = module.eks[0].cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks[0].cluster_certificate_authority_data)
+    token                  = data.aws_eks_cluster_auth.eks[0].token
+  }
 }
 %{ endif }
 EOF
@@ -51,5 +53,5 @@ inputs = {
   spoke_account_id = include.root.locals.variables.spoke_account_id
   ado              = include.root.locals.variables.ado
   vpc_id           = dependency.hub.outputs.vpc_id
-  stack            = "ecs"
+  stack            = include.root.locals.variables.stack
 }
