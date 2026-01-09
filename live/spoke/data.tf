@@ -9,5 +9,5 @@ data "aws_ecr_authorization_token" "token" {}
 data "aws_eks_cluster_auth" "eks" {
   count = var.stack == "eks" ? 1 : 0
 
-  name = module.eks.cluster_name
+  name = module.eks[0].cluster_name
 }
