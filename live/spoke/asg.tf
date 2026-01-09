@@ -1,7 +1,26 @@
-module "autoscaling" {
-  source = "terraform-aws-modules/autoscaling/aws"
+module "asg_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 5.0"
 
-  for_each = {
+  count = var.stack == "ecs" ? 1 : 0
+
+  name        = var.service
+  description = "autoscaling security group"
+  vpc_id      = var.vpc_id
+
+  ingress_rules = []
+
+  egress_rules       = ["https-443-tcp"]
+  egress_cidr_blocks = ["0.0.0.0/0"]
+
+  tags = local.default_tags
+}
+
+module "autoscaling" {
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "~> 9.0"
+
+  for_each = var.stack == "ecs" ? {
     ex_1 = {
       instance_type              = "t3.small"
       use_mixed_instances_policy = true
@@ -31,14 +50,14 @@ module "autoscaling" {
         sudo systemctl start amazon-ssm-agent
       EOT
     }
-  }
+  } : {}
 
   name = "${var.service}-${each.key}"
 
   image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
   instance_type = each.value.instance_type
 
-  security_groups                 = var.security_group
+  security_groups                 = [module.asg_sg[0].security_group_id]
   user_data                       = base64encode(each.value.user_data)
   ignore_desired_capacity_changes = true
 
@@ -51,7 +70,7 @@ module "autoscaling" {
     AdoCustomRole                       = module.ado_custom_policy.arn
   }
 
-  vpc_zone_identifier = var.private_subnets
+  vpc_zone_identifier = var.subnets
 
   health_check_type = "EC2"
   min_size          = 1

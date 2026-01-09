@@ -1,22 +1,49 @@
 module "ecs_cluster" {
-  source = "terraform-aws-modules/ecs/aws"
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "~> 6.0"
+
+  count = var.stack == "ecs" ? 1 : 0
 
   cluster_name = var.service
 
   tags = local.default_tags
 }
 
+module "ecs_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 5.0"
+
+  count = var.stack == "ecs" ? 1 : 0
+
+  name        = var.service
+  description = "ecs security group"
+  vpc_id      = var.vpc_id
+
+  ingress_rules = []
+
+  egress_rules       = ["https-443-tcp"]
+  egress_cidr_blocks = ["0.0.0.0/0"]
+
+  tags = local.default_tags
+}
+
 module "ecs_service" {
-  source = "terraform-aws-modules/ecs/aws//modules/service"
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
+  version = "~> 6.0"
+
+  count = var.stack == "ecs" ? 1 : 0
 
   name        = "ado"
-  cluster_arn = module.ecs_cluster.cluster_arn
+  cluster_arn = module.ecs_cluster[0].cluster_arn
 
   cpu         = 512
   memory      = 1024
   launch_type = "EC2"
 
-  create_security_group = var.create_security_group
+  vpc_id                = var.vpc_id
+  subnet_ids            = var.subnets
+  create_security_group = false
+  security_group_ids    = [module.ecs_sg[0].security_group_id]
 
   container_definitions = {
     ado = {
@@ -71,19 +98,12 @@ module "ecs_service" {
         {
           name  = "AZP_AGENT_NAME"
           value = var.service
+        },
+        {
+          name  = "AZP_STACK"
+          value = var.stack
         }
       ]
-    }
-  }
-
-  subnet_ids = var.private_subnets
-  security_group_egress_rules = {
-    all = {
-      from_port   = "-1"
-      to_port     = "-1"
-      protocol    = "-1"
-      ip_protocol = "-1"
-      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 

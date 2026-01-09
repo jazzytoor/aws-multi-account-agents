@@ -1,0 +1,51 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ include "ado-agent.fullname" . }}
+  namespace: {{ include  "ado-agent.namespace" . }}
+  labels:
+    name: {{ include "ado-agent.name" . }}
+spec:
+  jobTargetRef:
+    template:
+      metadata:
+        labels:
+          name: {{ include "ado-agent.name" . }}
+      spec:
+        containers:
+        - name: {{ include "ado-agent.name" . }}
+          image: {{ .Values.image.repository }}
+          env:
+            {{- with .Values.env }}
+              {{- toYaml . | nindent 10 }}
+            {{- end }}
+            - name: AZP_URL
+              value: {{ .Values.global.url }}
+            - name: AZP_POOL
+              value: {{ .Values.global.pool }}
+            - name: AZP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ado-agent-pat
+                  key: token
+            - name: AZP_STACK
+              value: {{ .Values.global.stack }}
+          volumeMounts:
+          - mountPath: /var/run/docker.sock
+            name: dockervolume
+        volumes:
+        - name: dockervolume
+          hostPath:
+            path: /var/run/docker.sock
+  pollingInterval: 10
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 0
+  maxReplicaCount: 10
+  scalingStrategy:
+    strategy: "default"
+  triggers:
+  - type: azure-pipelines
+    metadata:
+      poolName: {{ .Values.global.pool }}
+      organizationURLFromEnv: "AZP_URL"
+      personalAccessTokenFromEnv: "AZP_TOKEN"
