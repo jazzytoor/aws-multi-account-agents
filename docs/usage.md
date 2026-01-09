@@ -34,41 +34,43 @@ This document walks you through deploying the **Hub-and-Spoke multi-account AWS 
     | `bucket`           | Terraform state S3 bucket                                    | String |
     | `region`           | AWS region (e.g., `eu-west-2`)                               | String |
     | `service`          | Service name / project identifier                            | String |
-    | `hub_account_id`   | AWS Account ID for the Hub account                           | String |
+    | `stack`            | Backend compute in AWS to provision either `ecs` or `eks`    | String |
     | `spoke_account_id` | AWS Account ID for the Spoke account                         | String |
     | `ado`              | Ado payload containing `AZP_URL`, `AZP_POOL` and `AZP_TOKEN` | Map    |
 
 ## Deployment
 
-1. Navigate to the live environment
+1. Decide if you wish the backend compute to be `ecs` or `eks` by updating `stack` variable where it will run your self hosted agents on.
+
+2. Navigate to the live environment
 
     `cd terraform/live`
 
-2. Initialize Terragrunt
+3. Initialize Terragrunt
 
     `terragrunt run --all init`
 
 
-3. Preview the changes
+4. Preview the changes
 
     `terragrunt run --all plan`
 
 
-4. Apply the infrastructure
+5. Apply the infrastructure
 
-    `terragrunt run --all apply`
+    `terragrunt run --all apply --non-interactive`
 
 Terragrunt will deploy the hub networking, share subnets via AWS RAM, and create resources in the spoke accounts.
 
 ## Verification
 - Confirm that the VPC and subnets exist in the Hub account
 - Confirm that RAM shares are visible in the Spoke account
-- Check that any compute workloads (ECS, EC2, etc.) are running in the shared subnets
+- Check that any compute workloads (EKS, ECS or EC2, etc.) are running in the shared subnets
 
 ## Notes / Tips
 1. You can destroy everything by running:
 
-    `terragrunt run --all destroy`
+    `terragrunt run --all destroy --non-interactive`
 2. In this instance the management AWS account is used as the Hub account which allows using `OrganizationAccountAccessRole` for Spoke accounts deployments.
 
     This is the default IAM role AWS creates when you enable AWS Organizations. Terragrunt/Terraform assumes this role to deploy resources in the spoke accounts.
