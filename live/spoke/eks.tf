@@ -110,7 +110,7 @@ resource "helm_release" "ado" {
     },
     {
       name  = "global.stack"
-      value = var.ado["AZP_STACK"]
+      value = var.stack
     }
   ]
 
