@@ -1,4 +1,4 @@
-<h1 align="center">aws-multi-account-agents 👋</h1>
+# aws-multi-account-agents
 
 ## Overview
 
