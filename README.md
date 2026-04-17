@@ -2,13 +2,13 @@
 
 ## Overview
 
-This repository demonstrates a **hub-and-spoke AWS multi-account architecture** where **networking is centrally managed** and shared across workload accounts using **AWS Resource Access Manager (RAM)**.
+This repository demonstrates a **hub-and-spoke AWS multi-account architecture** where **networking is centrally managed and shared** across workload accounts using **AWS Resource Access Manager (RAM)**.
 
-A central *hub account* owns the VPC, subnets, and network services, while *spoke accounts* deploy isolated compute workloads (such as CI/CD agents) into **RAM-shared subnets**, reducing duplication, cost, and operational overhead.
+Instead of duplicating VPCs and subnets in every account, a central *hub account* owns and manages networking, while *spoke accounts* deploy isolated workloads (such as CI/CD agents) into **RAM-shared subnets**.
 
 ## Architecture
 
-![architecture diagram](/docs/architecture-diagram.png)
+![High-level architecture showing hub-owned networking shared to spoke accounts via AWS RAM.](/docs/architecture-diagram.png)
 
 - **Hub Account**
   - Owns VPC, subnets, routing, NAT, and network security.
@@ -19,15 +19,12 @@ A central *hub account* owns the VPC, subnets, and network services, while *spok
   - Maintain isolated IAM roles and workload ownership.
   - Consume centrally managed networking.
 
-**Please note**
-- Currently only ECS is available, future scope will be implementing EC2 and EKS workloads.
-
-## Features
+## Key Capabilities
 
 - Hub-and-spoke AWS multi-account design.
 - Centralised VPC and subnet management.
 - AWS RAM-based subnet sharing.
-- ECS-based CI/CD agent deployment (example workload).
+- EKS/ ECS based CI/CD agent deployment (example workload).
 - Clear separation of networking and workload concerns.
 - Infrastructure-as-Code using Terraform and Terragrunt.
 
@@ -51,7 +48,11 @@ docs/              # Architecture diagrams and additional documentation
 
 ## Usage
 
-See the documentation under /docs for deployment guidance.
+See the documentation under [/docs](/docs/usage.md) for deployment guidance.
+
+## Future Improvements
+- Integrate AWS Network Firewall for centralised traffic inspection
+- Explore cross-account observability and logging patterns
 
 ## Author
 
