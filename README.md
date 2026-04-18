@@ -50,9 +50,22 @@ docs/              # Architecture diagrams and additional documentation
 
 See the documentation under [/docs](/docs/usage.md) for deployment guidance.
 
+## Trade-offs & Considerations
+
+While this architecture reduces duplication and centralises networking, it introduces several trade-offs:
+- **Blast Radius**
+  - Networking issues in the hub account can impact all spoke accounts.
+- **Reduced Isolation**
+  - Shared subnets weaken strict account-level network isolation.
+- **Governance Complexity**
+  - Requires clear ownership boundaries between platform and workload teams.
+- **Operational Coupling**
+  - Changes to networking must be coordinated across accounts.
+
+
 ## Future Improvements
-- Integrate AWS Network Firewall for centralised traffic inspection
-- Explore cross-account observability and logging patterns
+- Integrate AWS Network Firewall for centralised traffic inspection.
+- Explore cross-account observability and logging patterns.
 
 ## Author
 
